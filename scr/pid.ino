@@ -18,12 +18,12 @@ void checkPID() {
       }
 #if (DEBUG_PID > 0 && PID_AUTOTUNE == 0)
       if (i == (DEBUG_PID - 1)) {
-        uart.print(activePID.setpoint); uart.print(',');
-        uart.print(input[i]); uart.print(',');
+        Serial.print(activePID.setpoint); Serial.print(',');
+        Serial.print(input[i]); Serial.print(',');
 #if (SHOW_INTEGRAL == 1)
-        uart.print(integralSum[i]/3); uart.print(',');
+        Serial.print(integralSum[i]/3); Serial.print(',');
 #endif
-        uart.println(output[i]);
+        Serial.println(output[i]);
       }
 #endif
     }

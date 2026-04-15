@@ -137,10 +137,10 @@ void tunePID() {
 
     lastInput = thisInput;
 #if (DEBUG_PID > 0)
-    uart.print(thisInput); uart.print(' ');
-    //uart.print(tuner.value); uart.print(' ');
-    uart.print(tuner.min); uart.print(' ');
-    uart.println(tuner.max);
+    Serial.print(thisInput); Serial.print(' ');
+    //Serial.print(tuner.value); Serial.print(' ');
+    Serial.print(tuner.min); Serial.print(' ');
+    Serial.println(tuner.max);
 #endif
   }
 }

@@ -1,4 +1,5 @@
 // -------------------- ПИНЫ ---------------------
+// Пиновка для ESP32 (можно изменить под вашу схему)
 #define SW        0
 #define RELAY_0   1
 #define DT        2
@@ -13,13 +14,13 @@
 #define DRV_PWM     11
 #define DRV_SIGNAL2 12
 #define SERVO_0   13
-#define SERVO_1   A0
-#define SENS_VCC  A1
-#define SENS_1    A2
-#define SENS_2    A3
-#define SENS_3    A6
-#define SENS_4    A7
-#define CO2_RX    A1
+#define SERVO_1   14  // A0 -> GPIO14
+#define SENS_VCC  15  // A1 -> GPIO15
+#define SENS_1    16  // A2 -> GPIO16
+#define SENS_2    17  // A3 -> GPIO17
+#define SENS_3    18  // A6 -> GPIO18 (ESP32 не имеет A6/A7, используем обычные GPIO)
+#define SENS_4    19  // A7 -> GPIO19 (ESP32 не имеет A6/A7, используем обычные GPIO)
+#define CO2_RX    15  // A1 -> GPIO15
 
 // ------------- ПРЕПРОЦЕССОР -------------
 #define DEBUG_ENABLE 0
@@ -85,52 +86,37 @@
 encMinim enc(CLK, DT, SW, ENC_REVERSE, ENCODER_TYPE);
 
 #if (SERVO1_RELAY == 0 || SERVO2_RELAY == 0)
-#if (SMOOTH_SERVO == 1)
-#include <ServoSmooth.h>
-#else
-#include <Servo.h>
-#endif
+#include <ESP32Servo.h>
 #endif
 
 #if (SERVO1_RELAY == 0)
-#if (SMOOTH_SERVO == 1)
-ServoSmooth servo1;
-#else
-Servo servo1;
-#endif
+ESP32Servo::Servo servo1;
 #endif
 
 #if (SERVO2_RELAY == 0)
-#if (SMOOTH_SERVO == 1)
-ServoSmooth servo2;
-#else
-Servo servo2;
-#endif
+ESP32Servo::Servo servo2;
 #endif
 
-#include <microWire.h>
-#include <microLiquidCrystal_I2C.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
 LiquidCrystal_I2C lcd(LCD_ADDR, 20, 4);
 
 #include <EEPROM.h>
 
-#include <microDS3231.h>
-MicroDS3231 rtc;
+#include <RTClib.h>
+RTC_DS3231 rtc;
 
 // bme
 #if (USE_BME == 1)
-#include <GyverBME280.h>
-GyverBME280 bme;
+#include <Adafruit_BME280.h>
+Adafruit_BME280 bme;
 #endif
 
 #if (DALLAS_SENS1 == 1)
-#include <microDS18B20.h>
-#if (DALLAS_AMOUNT > 1)
-MicroDS18B20 dallas[DALLAS_AMOUNT];
-float dallasBuf[DALLAS_AMOUNT];
-#else
-MicroDS18B20 dallas(SENS_1);
-#endif
+#include <DallasTemperature.h>
+#include <OneWire.h>
+OneWire oneWire(SENS_1);
+DallasTemperature dallas(&oneWire);
 #endif
 
 #if (DHT_SENS2 == 1)
@@ -139,12 +125,13 @@ DHT dht(SENS_2, DHT_TYPE);
 #endif
 
 #if (USE_HTU21D == 1)
-#include <microHTU21D.h>
-HTU21D myHTU21D(HTU21D_RES_RH12_TEMP14);
+#include <HTU21D.h>
+HTU21D myHTU21D;
 #endif
 
 #if (WDT_ENABLE == 1)
-#include <avr/wdt.h>
+// Для ESP32 watchdog управляется иначе, используем esp_task_wdt
+#include <esp_task_wdt.h>
 #endif
 // -------------------- ПЕРЕМЕННЫЕ ---------------------
 int8_t lastScreen = 0;

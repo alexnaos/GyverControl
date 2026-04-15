@@ -1,16 +1,16 @@
 void setup() {
 #if (DEBUG_ENABLE == 1)
-  uart.begin(9600);
+  Serial.begin(9600);
 #endif
-
+  
 #if (DEBUG_PID > 0)
 #if (PID_AUTOTUNE == 1)
-  uart.println("input , min , max");
+  Serial.println("input , min , max");
 #else
 #if (SHOW_INTEGRAL == 1)
-  uart.println("set , input , integral/3 , out");
+  Serial.println("set , input , integral/3 , out");
 #else
-  uart.println("set , input , out");
+  Serial.println("set , input , out");
 #endif
 #endif
 
@@ -18,7 +18,7 @@ void setup() {
 
   boolean startupPress = false;
   initHardware();
-
+  
   // просто сброс настроек
 #if (START_MENU == 0)
   // сброс настроек
@@ -55,10 +55,11 @@ void setup() {
   customSetup();        // вызов кастомного блока инициализации (вкладка custom)
 }
 
-ISR(INT0_vect) {        // External interrupt vectors
+// Для ESP32 используем IRAM_ATTR для обработчиков прерываний
+IRAM_ATTR void encISR() {
   enc.tick(controlState);
 }
 
-ISR(INT1_vect) {
+IRAM_ATTR void encISR2() {
   enc.tick(controlState);
 }
